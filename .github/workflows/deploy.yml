@@ -1,0 +1,58 @@
+name: Deploy to Vercel and Expo
+
+on:
+  push:
+    branches:
+      - main # 'main'ブランチにpushしたときにトリガー
+
+jobs:
+  # VercelへのWebデプロイ
+  vercel-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14' # 必要に応じて変更
+        
+      - name: Install dependencies
+        run: pnpm install
+        
+      - name: Build for Web
+        run: pnpm run build # `expo build:web`を実行
+        
+      - name: Deploy to Vercel (Web)
+        run: |
+          pnpm install -g vercel
+          vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --scope your-vercel-scope
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        
+  # ExpoのAndroidビルド
+  expo-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14' # 必要に応じて変更
+        
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build Android with Expo
+        run: |
+          pnpm install -g expo-cli
+          expo login --username ${{ secrets.EXPO_USERNAME }} --password ${{ secrets.EXPO_PASSWORD }}
+          expo build:android --no-publish # Android APKをビルド
+          
+      - name: Upload APK (optional)
+        run: |
+          echo "APK uploaded to Expo Build"
+          # ExpoでビルドされたAPKは、Expoのビルドシステムに保存され、URLでダウンロード可能になります。
