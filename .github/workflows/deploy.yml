@@ -52,8 +52,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Setup pnpm global directory
+        run: pnpm setup # Set up the global bin directory
+        
       - name: Install expo-cli globally
-        run: pnpm install -g expo-cli  # Install expo-cli globally
+        run: pnpm install -g expo-cli # Now installs expo-cli globally
 
       - name: Build Android with Expo
         run: |
