@@ -25,7 +25,7 @@ jobs:
         run: pnpm install
         
       - name: Build for Web
-        run: pnpm run build # Run expo build:web
+        run: pnpm run build # This runs `npx expo export:web`
         
       - name: Deploy to Vercel (Web)
         run: |
@@ -52,8 +52,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Install expo-cli (as a dev dependency, optional)
-        run: pnpm add expo-cli --save-dev
+      - name: Install expo-cli globally
+        run: pnpm install -g expo-cli  # Install expo-cli globally
 
       - name: Build Android with Expo
         run: |
