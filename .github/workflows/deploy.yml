@@ -3,10 +3,10 @@ name: Deploy to Vercel and Expo
 on:
   push:
     branches:
-      - main # 'main'ブランチにpushしたときにトリガー
+      - main # Trigger on push to the 'main' branch
 
 jobs:
-  # VercelへのWebデプロイ
+  # Vercel Web Deployment
   vercel-deploy:
     runs-on: ubuntu-latest
     steps:
@@ -16,7 +16,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14' # 必要に応じて変更
+          node-version: '18' # Use Node.js v18 for better pnpm compatibility
           
       - name: Install pnpm
         run: npm install -g pnpm
@@ -25,7 +25,7 @@ jobs:
         run: pnpm install
         
       - name: Build for Web
-        run: pnpm run build # `expo build:web`を実行
+        run: pnpm run build # Run expo build:web
         
       - name: Deploy to Vercel (Web)
         run: |
@@ -34,7 +34,7 @@ jobs:
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         
-  # ExpoのAndroidビルド
+  # Expo Android Build
   expo-build:
     runs-on: ubuntu-latest
     steps:
@@ -44,18 +44,20 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14' # 必要に応じて変更
+          node-version: '18'  # Use Node.js v18 for better compatibility
         
       - name: Install dependencies
         run: pnpm install
 
+      - name: Install expo-cli (as a dev dependency, optional)
+        run: pnpm add expo-cli --save-dev
+
       - name: Build Android with Expo
         run: |
-          pnpm install -g expo-cli
           expo login --username ${{ secrets.EXPO_USERNAME }} --password ${{ secrets.EXPO_PASSWORD }}
-          expo build:android --no-publish # Android APKをビルド
+          expo build:android --no-publish # Build the APK without publishing it
           
       - name: Upload APK (optional)
         run: |
           echo "APK uploaded to Expo Build"
-          # ExpoでビルドされたAPKは、Expoのビルドシステムに保存され、URLでダウンロード可能になります。
+          # You can add steps here to upload APK to an S3 bucket or other deployment service if needed.
