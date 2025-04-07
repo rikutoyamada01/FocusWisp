@@ -25,7 +25,7 @@ jobs:
         run: pnpm install
         
       - name: Build for Web
-        run: pnpm run build # This runs `npx expo export:web`
+        run: pnpm run build # This will now run `expo export` instead of `expo export:web`
         
       - name: Deploy to Vercel (Web)
         run: |
@@ -52,8 +52,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Set SHELL environment variable
+        run: echo "SHELL=/bin/bash" >> $GITHUB_ENV # Explicitly set the SHELL environment variable to bash
+        
       - name: Setup pnpm global directory
-        run: pnpm setup # Set up the global bin directory
+        run: pnpm setup # Now it will run with bash shell setup
         
       - name: Install expo-cli globally
         run: pnpm install -g expo-cli # Now installs expo-cli globally
