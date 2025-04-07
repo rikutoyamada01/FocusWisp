@@ -17,6 +17,9 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '14' # 必要に応じて変更
+          
+      - name: Install pnpm
+        run: npm install -g pnpm
         
       - name: Install dependencies
         run: pnpm install
