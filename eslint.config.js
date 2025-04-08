@@ -1,10 +1,11 @@
+import tsParser from "@typescript-eslint/parser"; // モジュールをオブジェクトとしてインポート
 import eslintPluginReact from "eslint-plugin-react";
 
 export default [
     {
         files: ["**/*.ts", "**/*.tsx"],
         languageOptions: {
-            parser: "@typescript-eslint/parser",
+            parser: tsParser, // 文字列ではなく、実際のパーサーオブジェクト
             parserOptions: {
                 ecmaFeatures: { jsx: true },
                 sourceType: "module",
