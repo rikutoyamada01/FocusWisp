@@ -3,10 +3,10 @@ name: Deploy to Vercel and Expo
 on:
   push:
     branches:
-      - main
+      - main  # Trigger on push to the 'main' branch
 
 jobs:
-  # Web Deployment to Vercel
+  # Vercel Web Deployment
   vercel-deploy:
     runs-on: ubuntu-latest
     steps:
@@ -16,21 +16,33 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: '18'  # Use Node.js v18 for better pnpm compatibility
+          
+      - name: Install pnpm
+        run: npm install -g pnpm
+        
+      - name: Cache pnpm dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
         
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
         
       - name: Build for Web
-        run: npm run build
+        run: pnpm run build  # This will now run `expo export` instead of `expo export:web`
         
       - name: Deploy to Vercel (Web)
-        run: npx vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --scope your-vercel-scope
+        run: |
+          pnpm install -g vercel
+          vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --scope your-vercel-scope
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-
-  # Android Build via Expo
+        
+  # Expo Android Build
   expo-build:
     runs-on: ubuntu-latest
     steps:
@@ -40,14 +52,43 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: '18'  # Use Node.js v18 for better compatibility
 
+      - name: Install pnpm
+        run: npm install -g pnpm
+        
+      - name: Cache pnpm dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+        
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
 
-      - name: Authenticate with Expo
-        run: npx expo login -u ${{ secrets.EXPO_USERNAME }} -p ${{ secrets.EXPO_PASSWORD }}
+      - name: Set SHELL environment variable
+        run: echo "SHELL=/bin/bash" >> $GITHUB_ENV # Explicitly set the SHELL environment variable to bash
+        
+      - name: Setup pnpm global directory
+        run: pnpm setup # Now it will run with bash shell setup
 
-      - name: Build Android App
-        run: npx expo build:android
+      - name: Add pnpm to PATH
+        run: echo "$(pnpm bin -g)" >> $GITHUB_PATH # Add pnpm global bin to PATH
+
+      - name: Source bashrc
+        run: echo "source /home/runner/.bashrc" >> $GITHUB_ENV # Ensure the bashrc is sourced for the current shell
+        
+      - name: Install expo-cli globally
+        run: pnpm install -g expo-cli # Now installs expo-cli globally
+
+      - name: Build Android with Expo
+        run: |
+          expo login --username ${{ secrets.EXPO_USERNAME }} --password ${{ secrets.EXPO_PASSWORD }}
+          expo build:android --no-publish # Build the APK without publishing it
+          
+      - name: Upload APK (optional)
+        run: |
+          echo "APK uploaded to Expo Build"
+          # You can add steps here to upload APK to an S3 bucket or other deployment service if needed.
