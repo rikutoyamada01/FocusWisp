@@ -56,8 +56,9 @@ jobs:
         run: echo "SHELL=/bin/bash" >> $GITHUB_ENV # Explicitly set the SHELL environment variable to bash
         
       - name: Setup pnpm global directory
-        run: pnpm setup # Now it will run with bash shell setup
-        run: source /home/runner/.bashrc # Source the bashrc to ensure pnpm is available in the current shell
+        run: |
+          pnpm setup # Now it will run with bash shell setup
+          source /home/runner/.bashrc # Source the bashrc to ensure pnpm is available in the current shell
         
       - name: Install expo-cli globally
         run: pnpm install -g expo-cli # Now installs expo-cli globally
