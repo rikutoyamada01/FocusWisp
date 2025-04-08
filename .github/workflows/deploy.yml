@@ -16,28 +16,17 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'  # Use Node.js v18 for better pnpm compatibility
+          node-version: '18'  # Use Node.js v18 for better compatibility
           
-      - name: Install pnpm
-        run: npm install -g pnpm
-        
-      - name: Cache pnpm dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
-        
       - name: Install dependencies
-        run: pnpm install
+        run: npm install
         
       - name: Build for Web
-        run: pnpm run build  # This will now run `expo export` instead of `expo export:web`
+        run: npm run build  # This will now run `expo export` instead of `expo export:web`
         
       - name: Deploy to Vercel (Web)
         run: |
-          pnpm install -g vercel
+          npm install -g vercel
           vercel --prod --token ${{ secrets.VERCEL_TOKEN }} --scope your-vercel-scope
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -54,39 +43,16 @@ jobs:
         with:
           node-version: '18'  # Use Node.js v18 for better compatibility
 
-      - name: Install pnpm
-        run: npm install -g pnpm
-        
-      - name: Cache pnpm dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
-        
       - name: Install dependencies
-        run: pnpm install
+        run: npm install
 
-      - name: Set SHELL environment variable
-        run: echo "SHELL=/bin/bash" >> $GITHUB_ENV # Explicitly set the SHELL environment variable to bash
-        
-      - name: Setup pnpm global directory
-        run: pnpm setup # Now it will run with bash shell setup
-
-      - name: Add pnpm to PATH
-        run: echo "$(pnpm bin -g)" >> $GITHUB_PATH # Add pnpm global bin to PATH
-
-      - name: Source bashrc
-        run: echo "source /home/runner/.bashrc" >> $GITHUB_ENV # Ensure the bashrc is sourced for the current shell
-        
       - name: Install expo-cli globally
-        run: pnpm install -g expo-cli # Now installs expo-cli globally
+        run: npm install -g expo-cli
 
       - name: Build Android with Expo
         run: |
           expo login --username ${{ secrets.EXPO_USERNAME }} --password ${{ secrets.EXPO_PASSWORD }}
-          expo build:android --no-publish # Build the APK without publishing it
+          expo build:android --no-publish  # Build the APK without publishing it
           
       - name: Upload APK (optional)
         run: |
